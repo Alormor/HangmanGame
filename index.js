@@ -51,15 +51,18 @@ function beginHangman(){
     let chosenCategory = document.getElementById("chosenCategory");
     let myLives = document.getElementById("lives");
     let choice, word, lives = 10;
-    
+    let guessedWordArray = [];
+    let guessedWord;
+
     disableAlphabet(); // Disable alphabet at the beginning
 
     myCategory.addEventListener("click", (e)=>{
         choice = e.target.id;
         word = generateWord(choice);
+        guessedWordArray.length = word.length;
 
         myCategory.remove();
-        chosenCategory.innerHTML = "Category is "+choice +" word is "+word;
+        chosenCategory.innerHTML = "Category is "+choice;
         myLives.innerHTML = "You have "+lives+" lives";
         myMessage.innerHTML = "Pick a letter!";
 
@@ -70,23 +73,40 @@ function beginHangman(){
 
     myAlphabet.addEventListener("click", (e)=>{
         disableAlphabet();
-
         let letter = e.target.id;
-        let letterCollection = myDivWord.querySelectorAll(`.${letter}, .${letter.toUpperCase()}`);
-        // If the length is higher than 0 it means that letter is part of
-        // the word
-        if(letterCollection.length > 0){
-            myMessage.innerHTML = "Correct!";
-            revealLetters(letter, letterCollection);
-        }
-        else{
-            lives--;
-            myMessage.innerHTML = "Incorrect! You lose a life";
-            myLives.innerHTML = "You have "+lives+" lives";
-        }
-        disabledLetters.push(letter);
+        if(letter != "alphabet"){
+            let letterCollection = myDivWord.querySelectorAll(`.${letter}, .${letter.toUpperCase()}`);
+            // If the length is higher than 0 it means that letter is part of
+            // the word
+            if(letterCollection.length > 0){
+                myMessage.innerHTML = "&#9989; Correct!";
+                revealLetters(letter, letterCollection);
+                guessedWord = "";
+                for(let i=0; i<word.length; i++){
+                    if(word.charAt(i).toLowerCase()==letter) 
+                        guessedWordArray[i]=letter;
+                    guessedWord += guessedWordArray[i]; 
+                }
+            }
+            else{
+                lives--;
+                myMessage.innerHTML = "&#10060; Incorrect! You lose a life";
+                myLives.innerHTML = "You have "+lives+" lives";
+            }
 
-        setTimeout(enableAlphabet, letterCollection.length * 1000)
+            if(guessedWord == word.toLowerCase()){
+                myMessage.innerHTML = "&#127881; Congratulations you guessed the word! &#127881;";
+            }else if(lives == 0){
+                chosenCategory.innerHTML = "Category is "+choice +" the hidden word is "+word;
+                myMessage.innerHTML = "&#10060; Incorrect! You lose a life";
+                myLives.innerHTML = "$#128557; You don't have more lives. You've lost!";
+            }
+            else{
+                disabledLetters.push(letter);
+
+                setTimeout(enableAlphabet, letterCollection.length * 1000)
+            }
+        }        
     })
 }
 

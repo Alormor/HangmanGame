@@ -18,3 +18,8 @@ button{
     background-color: #B7D730;
     color: white;
 }
+
+#word div{
+    display: inline-block;
+    width: 25px;
+}
