@@ -40,23 +40,23 @@ let animals = [
     "Grasshopper", "Butterfly", "Centipede", "Mussels", "Barnacle"
 ]
 
-let myDivWord, myAlphabet, myMessage;
+let myDivWord, myAlphabet;
 let disabledLetters = [];
 
 function beginHangman(){
     myDivWord = document.getElementById("word");
     myAlphabet = document.getElementById("alphabet");
-    myMessage = document.getElementById("message");
+    let myMessage = document.getElementById("message");
     let myCategory = document.getElementById("category"); 
     let chosenCategory = document.getElementById("chosenCategory");
     let myLives = document.getElementById("lives");
     let choice, word, lives = 10;
     
-    disableAlphabet();
+    disableAlphabet(); // Disable alphabet at the beginning
 
     myCategory.addEventListener("click", (e)=>{
         choice = e.target.id;
-        word = chooseCategory(choice);
+        word = generateWord(choice);
 
         myCategory.remove();
         chosenCategory.innerHTML = "Category is "+choice +" word is "+word;
@@ -64,7 +64,7 @@ function beginHangman(){
         myMessage.innerHTML = "Pick a letter!";
 
         createDiv(word);
-        enableAlphabet();
+        enableAlphabet(); // Enable alphabet
 
     })
 
@@ -73,7 +73,12 @@ function beginHangman(){
 
         let letter = e.target.id;
         let letterCollection = myDivWord.querySelectorAll(`.${letter}, .${letter.toUpperCase()}`);
-        if(letterCollection.length > 0) showLetters(letter, letterCollection);
+        // If the length is higher than 0 it means that letter is part of
+        // the word
+        if(letterCollection.length > 0){
+            myMessage.innerHTML = "Correct!";
+            revealLetters(letter, letterCollection);
+        }
         else{
             lives--;
             myMessage.innerHTML = "Incorrect! You lose a life";
@@ -82,11 +87,11 @@ function beginHangman(){
         disabledLetters.push(letter);
 
         setTimeout(enableAlphabet, letterCollection.length * 1000)
-
     })
 }
 
-function chooseCategory(choice){
+// Function that returns the hidden word
+function generateWord(choice){
     let word;
     switch(choice){
         case "cities":
@@ -109,6 +114,7 @@ function chooseCategory(choice){
     return word;
 }
 
+// Function that creates 
 function createDiv(word){
     for(let i=0; i<word.length; i++){
         if(word.charAt(i)!=" "){
@@ -120,26 +126,30 @@ function createDiv(word){
     }
 }
 
+// Function that disables the whole alphabet
 function disableAlphabet(){
     for(let i=0; i<myAlphabet.children.length; i++)
         myAlphabet.children[i].disabled = true;
 }
 
+// Function that enables the alphabet except for the clicked letters
 function enableAlphabet(){  
-    let disabled;
+    let disabled; // Flag variable
     for(let i=0; i<myAlphabet.children.length; i++){
-        disabled = false;
-        for(let j=0; j<disabledLetters.length && !disabled; j++){
-            let varibale = myAlphabet.children[i].id;
-            let variable = disabledLetters[j];
-            if(myAlphabet.children[i].id==disabledLetters[j]) disabled = true;
-        }
+        disabled = false; // Sets disabled as false when the next iteration starts
+        for(let j=0; j<disabledLetters.length && !disabled; j++)
+            // If a letter is in the disabledLetters array, the flag becomes true
+            if(myAlphabet.children[i].id==disabledLetters[j]) {
+                disabled = true;
+                myAlphabet.children[i].style.opacity = "50%";
+            }      
+        // If true, that letter will not get enabled
         if(!disabled) myAlphabet.children[i].disabled = false;
     }
 }
 
-function showLetters(letter, letterCollection){
-    myMessage.innerHTML = "Correct!";
+// Function that reveals the letters
+function revealLetters(letter, letterCollection){
     for(let i=0; i<letterCollection.length; i++){
         setTimeout(()=>{
             letterCollection[i].innerHTML = 
